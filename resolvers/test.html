@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    :root {
+      --width: 100vw;
+      --angle: -11deg;
+      /*-----------------
+      Magic Number Alert:
+      
+      the 0.09719 is calculated by this formula:
+      tan(11°) / 2
+      11° is the current skewY value.
+      ------------------*/
+      --magic-number: 0.09719;
+      --skew-padding: calc(var(--width) * var(--magic-number));
+    }
+
+    .container {
+      max-width: 100%;
+      max-height: 100vh;
+      display: grid;
+      align-items: center;
+      justify-items: center;
+    }
+
+    .diagonal-box {
+      background-image: linear-gradient(45deg, #6303B1, #ff0099);
+      transform: skewY(-11deg);
+    }
+
+    .content {
+      max-width: 50em;
+      margin: 0 auto;
+      transform: skewY(11deg);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="diagonal-box">
+      <div class="content"> ... </div>
+    </div>
+  </div>
+</body>
+</html>

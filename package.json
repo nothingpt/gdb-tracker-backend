@@ -11,6 +11,10 @@
   "license": "ISC",
   "dependencies": {
     "dotenv": "^8.2.0",
+    "graphql-iso-date": "^3.6.1",
+    "graphql-moment": "0.0.2",
+    "graphql-yoga": "^1.18.3",
+    "moment": "^2.24.0",
     "mongoose": "^5.9.1"
   }
 }
