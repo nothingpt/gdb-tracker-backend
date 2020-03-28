@@ -4,4 +4,12 @@ const createServer = require('./createServer');
 
 const server = createServer();
 
-server.start({port: process.env.PORT || 7777}, () => console.log(`The server is running on port 7777`));
+const opts = {
+  port: 7777,
+  cors: {
+    credentials: true,
+    origin: ["http://localhost:3000"] // your frontend url.
+  }
+};
+
+server.start(opts, () => console.log(`The server is running on port 7777`));

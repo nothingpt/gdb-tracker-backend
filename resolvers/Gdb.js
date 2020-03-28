@@ -25,6 +25,13 @@ const resolvers = {
       }).distinct('status');
 
       return results;
+    },
+    projects: async (parent, args) => {
+      const results = await Gdb.find({}, (err, projects) => {
+        if (err) return err;
+      }).distinct('project');
+
+      return results;
     }
   },
   Mutation: {

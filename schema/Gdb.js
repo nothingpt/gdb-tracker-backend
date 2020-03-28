@@ -26,6 +26,7 @@ const typeDefs = `
     gdb(rfaid: String!): Gdb
     gdbs: [Gdb]!
     status: [String]!
+    projects: [String]!
   }
 
   type Mutation {
