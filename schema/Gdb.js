@@ -24,7 +24,7 @@ const typeDefs = `
 
   type Query {
     gdb(rfaid: String!): Gdb
-    gdbs: [Gdb]!
+    gdbs(project: String, status: String, sort: String, searchRFA: String): [Gdb]!
     status: [String]!
     projects: [String]!
   }
