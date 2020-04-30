@@ -100,6 +100,12 @@ const resolvers = {
 
       return newGdb;
     },
+    updateGdb: async (parent, args, ctx, info) => {
+      let gdb = {...args};
+      console.log(gdb);
+      let doc = await Gdb.findByIdAndUpdate({_id: gdb._id}, gdb);
+      return doc
+    },
     updateStatus: async (parent, {rfaid, status}, ctx, info) => {
       const result = await Gdb.findOneAndUpdate({rfaid}, {status}, {new: true}, (err, gdb) => {
         if (err) return err;
