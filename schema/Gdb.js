@@ -24,9 +24,11 @@ const typeDefs = `
 
   type Query {
     gdb(rfaid: String!): Gdb
-    gdbs(project: String, status: String, sort: String, searchRFA: String): [Gdb]!
+    gdbs(project: String, status: String, sort: String, searchRFA: String, offset: Int): [Gdb]!
+    totalCountFilter(project: String, status: String, searchRFA: String): Int!
     status: [String]!
     projects: [String]!
+    getTotalGDBs: Int!
   }
 
   type Mutation {

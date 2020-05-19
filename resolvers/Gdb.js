@@ -15,28 +15,36 @@ const resolvers = {
         sort = args.sort;
       }
 
-      let {project, status, searchRFA} = args;
+      let {project, status, searchRFA, offset} = args;
 
       if (!searchRFA) {
         searchRFA = '';
       }
 
       let results;
+      let totalCount;
 
       if((!project || project.toUpperCase() === 'ALL') && (status && status !== 'NotClosed')) {
-        results = await Gdb.find({status: status, rfaid:{ '$regex' : searchRFA, '$options' : 'i' }}).sort(sort)
+        results = await Gdb.find({status: status, rfaid:{ '$regex' : searchRFA, '$options' : 'i' }}).skip((offset - 1) * 30).limit(30).sort(sort)
+        totalCount = await Gdb.count({status: status, rfaid:{ '$regex' : searchRFA, '$options' : 'i' }});
       } else if ((!project || project.toUpperCase() === 'ALL') && status === 'NotClosed') {
-        results = await Gdb.find({status: { $ne: "Closed"}, rfaid:{ '$regex' : searchRFA, '$options' : 'i' }}).sort(sort)
+        results = await Gdb.find({status: { $ne: "Closed"}, rfaid:{ '$regex' : searchRFA, '$options' : 'i' }}).skip((offset - 1) * 30).limit(30).sort(sort)
+        totalCount = await Gdb.count({status: { $ne: "Closed"}, rfaid:{ '$regex' : searchRFA, '$options' : 'i' }});
       } else if (project && (!status || status.toUpperCase() === 'ALL')) {
-        results = await Gdb.find({project: project, rfaid:{ '$regex' : searchRFA, '$options' : 'i' }}).sort(sort)
+        results = await Gdb.find({project: project, rfaid:{ '$regex' : searchRFA, '$options' : 'i' }}).skip((offset - 1) * 30).limit(30).sort(sort)
+        totalCount = await Gdb.count({project: project, rfaid:{ '$regex' : searchRFA, '$options' : 'i' }});
       } else if (project && (status && status !== 'NotClosed')) {
-        results = await Gdb.find({project: project, status: status, rfaid:{ '$regex' : searchRFA, '$options' : 'i' }}).sort(sort)
+        results = await Gdb.find({project: project, status: status, rfaid:{ '$regex' : searchRFA, '$options' : 'i' }}).skip((offset - 1) * 30).limit(30).sort(sort)
+        totalCount = await Gdb.count({project: project, status: status, rfaid:{ '$regex' : searchRFA, '$options' : 'i' }});
       } else if (project && status === 'NotClosed') {
-        results = await Gdb.find({project: project, status: { $ne: "Closed"}, rfaid:{ '$regex' : searchRFA, '$options' : 'i' }}).sort(sort)
+        results = await Gdb.find({project: project, status: { $ne: "Closed"}, rfaid:{ '$regex' : searchRFA, '$options' : 'i' }}).skip((offset - 1) * 30).limit(30).sort(sort)
+        totalCount = await Gdb.count({project: project, status: { $ne: "Closed"}, rfaid:{ '$regex' : searchRFA, '$options' : 'i' }});
       } else if ((!project || project.toUpperCase() === 'ALL') && (!status || status.toUpperCase() === 'ALL') && searchRFA === '') {
-        results = await Gdb.find({}).sort(sort)
+        results = await Gdb.find({}).skip((offset - 1) * 30).limit(30).sort(sort);
+        totalCount = await Gdb.count({});
       } else {
-        results = await Gdb.find({rfaid:{ '$regex' : searchRFA, '$options' : 'i' }}).sort(sort)
+        results = await Gdb.find({rfaid:{ '$regex' : searchRFA, '$options' : 'i' }}).skip((offset - 1) * 30).limit(30).sort(sort);
+        totalCount = await Gdb.count({rfaid:{ '$regex' : searchRFA, '$options' : 'i' }});
       }
 
       return results
@@ -63,10 +71,43 @@ const resolvers = {
       }).distinct('project');
 
       return results;
+    },
+    totalCountFilter: async(parent, args) => {
+      let {project, status, searchRFA} = args;
+
+      if (!searchRFA) {
+        searchRFA = '';
+      }
+
+      let totalCount;
+
+      if((!project || project.toUpperCase() === 'ALL') && (status && status !== 'NotClosed')) {
+        totalCount = await Gdb.count({status: status, rfaid:{ '$regex' : searchRFA, '$options' : 'i' }});
+      } else if ((!project || project.toUpperCase() === 'ALL') && status === 'NotClosed') {
+        totalCount = await Gdb.count({status: { $ne: "Closed"}, rfaid:{ '$regex' : searchRFA, '$options' : 'i' }});
+      } else if (project && (!status || status.toUpperCase() === 'ALL')) {
+        totalCount = await Gdb.count({project: project, rfaid:{ '$regex' : searchRFA, '$options' : 'i' }});
+      } else if (project && (status && status !== 'NotClosed')) {
+        totalCount = await Gdb.count({project: project, status: status, rfaid:{ '$regex' : searchRFA, '$options' : 'i' }});
+      } else if (project && status === 'NotClosed') {
+        totalCount = await Gdb.count({project: project, status: { $ne: "Closed"}, rfaid:{ '$regex' : searchRFA, '$options' : 'i' }});
+      } else if ((!project || project.toUpperCase() === 'ALL') && (!status || status.toUpperCase() === 'ALL') && searchRFA === '') {
+        totalCount = await Gdb.count({});
+      } else {
+        totalCount = await Gdb.count({rfaid:{ '$regex' : searchRFA, '$options' : 'i' }});
+      }
+
+      return totalCount;
+    },
+    getTotalGDBs: async (parent, args) => {
+      const total = await Gdb.count({});
+
+      return total;
     }
   },
   Mutation: {
     createGdb: async (parent, args, ctx, info) => {
+      console.log(args)
       const { project, rfaid, description, status } = args;
       var created;
       var updated = moment();
@@ -93,6 +134,8 @@ const resolvers = {
       if (notes) {
         newGdb.notes.push(notes);
       }
+
+      console.log(newGdb);
 
       const error = await newGdb.save();
 
